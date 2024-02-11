@@ -16,7 +16,7 @@
         "maximum": 11
     },
     "esmodules": ["./custom-nameplates.js"],
-    "url": "https://github.com/earlSt1/vtt-custom-nameplates",
-    "manifest": "https://raw.githubusercontent.com/earlSt1/vtt-custom-nameplates/11x-update/module.json",
-    "download": "https://github.com/earlSt1/vtt-custom-nameplates/releases/download/2.1.4/2.1.4.zip"
+    "url": "https://github.com/daniel-duliga/vtt-custom-nameplates",
+    "manifest": "https://raw.githubusercontent.com/daniel-duliga/vtt-custom-nameplates/11x-update/module.json",
+    "download": "https://github.com/daniel-duliga/vtt-custom-nameplates/archive/11x-update.zip"
 }
