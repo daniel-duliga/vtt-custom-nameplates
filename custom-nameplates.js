@@ -128,20 +128,26 @@ export class CustomNameplates {
         return this.loadLocalStyles().has(this.game.scenes.viewed.id) || this.loadGlobalStyle().autoScale;
     }
     checkAutoScale(canvas) {
+        let isHex = false;
+        canvas.layers.forEach(layer => {
+            if (layer.isHex) {
+                isHex = true;
+            }
+        });
         if (canvas.tokens.preview.children.length > 0 || canvas.templates.preview.children.length > 0) return;
         if (this.isSceneBeingViewed()) {
             if (this.isAutoScaleEnabledForScene()) {
-                CustomNameplates._autoScaleTokenNameplates(canvas);
+                CustomNameplates._autoScaleTokenNameplates(canvas, isHex);
                 CustomNameplates._autoScaleTemplateNameplates(canvas);
                 CustomNameplates._autoScaleNotes(canvas);
             }
         }
     }
-    static _autoScaleTokenNameplates(canvas) {
+    static _autoScaleTokenNameplates(canvas, isHex) {
         if (canvas.tokens) {
             for (let token of canvas.tokens.placeables) {
                 if (token.nameplate) {
-                    token.nameplate.scale.set(this._calculateAutoScale(canvas.scene.dimensions.size, canvas.stage.scale.x));
+                    token.nameplate.scale.set(this._calculateAutoScale(canvas.scene.dimensions.size, canvas.stage.scale.x, isHex));
                 }
             }
         }
@@ -151,7 +157,7 @@ export class CustomNameplates {
             if (canvas.templates) {
                 for (let template of canvas.templates.placeables) {
                     if (template.ruler) {
-                        template.ruler.scale.set(this._calculateAutoScale(canvas.scene.dimensions.size, canvas.stage.scale.x));
+                        template.ruler.scale.set(this._calculateAutoScale(canvas.scene.dimensions.size, canvas.stage.scale.x, game.client.gridLayer.isHex));
                     }
                 }
             }
@@ -164,12 +170,16 @@ export class CustomNameplates {
             }
         }
     }
-    static _calculateAutoScale(sceneDimensionSize, zoomStage) {
+    static _calculateAutoScale(sceneDimensionSize, zoomStage, isHex) {
         // Taken from Easy Ruler Scale, a mod by Kandashi
         // https://github.com/kandashi/easy-ruler-scale
-        const gs = sceneDimensionSize / 100;
+        let gs = 1.4;
+        if (isHex) {
+            gs = 1.25;
+        }
         const zs = 1 / zoomStage;
-        return Math.max(gs * zs, 0.8);
+        const result = Math.max(gs * zs, 0.8);
+        return result;
     }
 }
 class NameplateEditConfig extends FormApplication {
@@ -293,12 +303,12 @@ function libWrapperRegister(target, wrapper, type) {
 }
 Hooks.on("setup", async () => {
     await registerSettings();
-    Hooks.on("canvasInit", () => {
-        game.customNameplates.setCanvasStyle();
-    });
-    Hooks.once("canvasReady", () => {
-        Hooks.on("canvasPan", (c) => {
-            game.customNameplates.checkAutoScale(c);
-        });
+});
+Hooks.on("canvasInit", () => {
+    game.customNameplates.setCanvasStyle(); 
+});
+Hooks.once("canvasReady", () => {
+    Hooks.on("canvasPan", (c) => {
+        game.customNameplates.checkAutoScale(c);
     });
 });
